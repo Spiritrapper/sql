@@ -948,7 +948,7 @@ ALTER TABLE 게시글_77 RENAME COLUMN 사용여부 TO 삭제여부;
 
 SELECT A.게시판ID, A.게시판명, COUNT(B.게시글ID) AS CNT
 FROM 게시판_77 A, 게시글_77 B
-WHERE A.게시판ID = B.게시판ID(+)AND B.삭제여부(+) = 'N'AND A.사용여부 = 'Y'
+WHERE A.게시판ID = B.게시판ID(+) AND B.삭제여부(+) = 'N' AND A.사용여부 = 'Y'
 GROUP BY A.게시판ID, A.게시판명
 ORDER BY A.게시판ID;
 
@@ -983,3 +983,200 @@ ORDER BY A.게시판ID;
 
 
 -- 78번 활용 문제 14번
+
+-- 79번 활용 문제 15번
+
+-- TAB1 테이블 생성
+CREATE TABLE TAB1_79 (
+    A INT,
+    B VARCHAR(1)
+);
+
+-- TAB2 테이블 생성
+CREATE TABLE TAB2_79 (
+    A INT,
+    B VARCHAR(1)
+);
+
+-- 데이터 삽입
+INSERT INTO TAB1_79 (A, B) VALUES (1, 'x');
+INSERT INTO TAB1_79 (A, B) VALUES (2, 'y');
+INSERT INTO TAB1_79 (A, B) VALUES (3, 'z');
+
+INSERT INTO TAB2_79 (A, B) VALUES (1, 'x');
+INSERT INTO TAB2_79 (A, B) VALUES (4, 'w');
+INSERT INTO TAB2_79 (A, B) VALUES (3, 'z');
+
+
+
+-- 80번 활용 문제 16번
+
+
+-- 서비스 테이블 생성
+CREATE TABLE 서비스_80 (
+    서비스ID INT PRIMARY KEY,
+    서비스명 VARCHAR(50),
+    서비스URL VARCHAR(100)
+);
+CREATE TABLE 회원_80 (
+    회원ID INT PRIMARY KEY ,
+    회원명 VARCHAR(20)
+
+)
+-- 서비스이용 테이블 생성
+CREATE TABLE 서비스이용_80 (
+    회원ID INT ,
+    서비스ID INT,
+    이용일시 DATE,
+    PRIMARY KEY(회원ID,서비스ID),
+    FOREIGN KEY (회원ID) REFERENCES 회원_80(회원ID),
+    FOREIGN KEY (서비스ID) REFERENCES 서비스_80(서비스ID)
+
+);
+
+-- 데이터 삽입
+-- 서비스 테이블 데이터 삽입
+INSERT INTO 서비스_80 (서비스ID, 서비스명, 서비스URL) VALUES (100, '서비스1', 'http://example.com/service1');
+INSERT INTO 서비스_80 (서비스ID, 서비스명, 서비스URL) VALUES (200, '서비스2', 'http://example.com/service2');
+INSERT INTO 서비스_80 (서비스ID, 서비스명, 서비스URL) VALUES (300, '서비스3', 'http://example.com/service3');
+
+
+INSERT INTO 회원_80 (회원ID, 회원명) VALUES (1, '서1');
+INSERT INTO 회원_80 (회원ID, 회원명) VALUES (2, '서2');
+INSERT INTO 회원_80 (회원ID, 회원명) VALUES (3, '서3');
+
+-- 서비스이용 테이블 데이터 삽입
+INSERT INTO 서비스이용_80 (회원ID, 서비스ID, 이용일시) VALUES (1, 100, '2020.01.01');
+INSERT INTO 서비스이용_80 (회원ID, 서비스ID, 이용일시) VALUES (2, 200, '2020.01.02');
+INSERT INTO 서비스이용_80 (회원ID, 서비스ID, 이용일시) VALUES (3, 300, '2020.01.02');
+
+SELECT A.서비스ID, B.서비스명, B.서비스URL
+FROM 
+(SELECT
+서비스ID      
+FROM 서비스_80      
+INTERSECT      
+SELECT 서비스ID      
+FROM 서비스이용_80) A, 서비스_80 B
+WHERE A.서비스ID = B.서비스ID;
+
+--1
+SELECT B.서비스ID, A.서비스명, A.서비스URL
+FROM 서비스_80 A, 서비스이용_80 B
+WHERE A.서비스ID = B.서비스ID;
+
+--2
+SELECT X.서비스ID, X.서비스명, X.서비스URL
+FROM 서비스_80 X
+WHERE NOT EXISTS (
+SELECT 1                 
+FROM (SELECT 서비스ID                        
+FROM 서비스_80                        
+MINUS                        
+SELECT 서비스ID                        
+FROM 서비스이용_80) Y                  
+WHERE X.서비스ID = Y.서비스ID);
+
+--3
+SELECT B.서비스ID, A.서비스명, A.서비스URL
+FROM 서비스_80 A 
+LEFT OUTER JOIN 서비스이용_80 B ON (A.서비스ID = B.서비스ID)
+WHERE B.서비스ID IS NULL
+GROUP BY B.서비스ID, A.서비스명, A.서비스URL;
+
+--4
+SELECT A.서비스ID, A.서비스명, A.서비스URL
+FROM 서비스_80 A
+WHERE 서비스ID IN (
+SELECT 서비스ID                 
+FROM 서비스이용_80                  
+MINUS                 
+SELECT 서비스ID                  
+FROM 서비스_80);
+
+
+-- 81번 활용 문제 17번
+
+
+-- 82번 활용 문제 18번
+
+-- ORDER BY 1, 2 절은 첫 번째 컬럼(ENAME 또는 BBA)과 두 번째 컬럼(JOB 또는 BBB)의 값들을 오름차순으로 정렬합니다. 
+-- 그래서 "Jones"가 "Smith"보다 알파벳순으로 먼저 나오기 때문에 7566번 사원의 정보가 먼저 출력됩니다.
+
+
+-- 83번 활용 문제 19번
+
+ALTER TABLE TBL1 RENAME TO TABL1_83;
+ALTER TABLE TBL2 RENAME TO TABL2_83;
+
+SELECT COL1, COL2, COUNT(*) AS CNT
+FROM (
+SELECT COL1, COL2  FROM TABL1_83  
+UNION ALL  
+SELECT COL1, COL2   FROM TABL2_83   
+UNION   
+SELECT COL1, COL2  FROM TABL1_83)
+GROUP BY COL1, COL2;
+
+
+-- 84번 활용 문제 20번
+
+CREATE TABLE T1_84 (
+A VARCHAR(10),
+B VARCHAR(10),
+C VARCHAR(10)
+
+)
+
+CREATE TABLE T2_84 (
+A VARCHAR(10),
+B VARCHAR(10),
+C VARCHAR(10)
+)
+
+INSERT INTO T1_84 VALUES('A3','B2','C3');
+INSERT INTO T1_84 VALUES('A1','B1','C1');
+INSERT INTO T1_84 VALUES('A2','B3','C2');
+
+INSERT INTO T2_84 VALUES('A1','B1','C1');
+INSERT INTO T2_84 VALUES('A3','B2','C3');
+
+SELECT A, B, C 
+FROM T1_84
+UNION ALL
+SELECT A, B, C 
+FROM T2_84;
+
+SELECT A, B, C 
+FROM T1_84
+UNION 
+SELECT A, B, C 
+FROM T2_84;
+
+
+-- 85번 활용 문제 21번
+
+
+-- 86번 활용 문제 22번
+
+select*
+from emp;
+
+select *
+from(select empno, job,comm, deptno from emp)
+pivot(count(empno) for deptno in (10,20,30));
+
+
+CREATE TABLE new_table AS
+SELECT *
+FROM (
+    SELECT *
+    FROM (
+        SELECT job, comm, deptno 
+        FROM emp
+    ) AS source_table
+    PIVOT (
+        COUNT(empno) 
+        FOR deptno IN (10 AS "DEPT_10", 20 AS "DEPT_20", 30 AS "DEPT_30")
+    ) AS pivot_table
+);
